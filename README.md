@@ -1,3 +1,3 @@
 # KDP-Lab1
 
-# For educational purposes only
+## For educational purposes only
