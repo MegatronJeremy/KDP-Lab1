@@ -18,6 +18,8 @@ public class Printer extends Thread {
 		while (combinerDone.await(M*1000) == false) {
 			printMovieInfo();
 		}
+		printMovieInfo();
+		System.out.println();
 		printFinalData();
 
 	}

@@ -2,7 +2,6 @@ package lab;
 
 public class Movie {
 	public Movie(String[] s) {
-
 		id = s[0];
 		name = s[2];
 		decade = Integer.parseInt(s[5]) / 10;

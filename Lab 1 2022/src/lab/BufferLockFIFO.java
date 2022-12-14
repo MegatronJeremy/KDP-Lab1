@@ -1,71 +1,56 @@
 package lab;
 
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class BufferLockFIFO<T> implements Buffer<T> {
+	
+	/**
+	 *	Efikasnije mnogo od cistog ticket algoritma - ali slozenije. 
+	 *	Ticket algoritam bi izgledao isto kao za regione - samo uz lock i jedan condition.
+	 *	@param - broj niti consumera
+	 */
 
-	public BufferLockFIFO() {
+	public BufferLockFIFO(int size) {
+		this.size = size;
+		c = new Condition[size];
 		for (int i = 0; i < size; i++) {
-			full[i] = lock.newCondition();
-			empty[i] = lock.newCondition();
-			slots[i] = 1;
+			c[i] = lock.newCondition();
 		}
 	}
 
 	@Override
 	public void put(T data) {
-		int ind;
-
 		lock.lock();
 		try {
-			ind = tail++;
-			tail %= size;
-			if (slots[ind] == 0) {
-				empty[ind].awaitUninterruptibly();
-			}
-			slots[ind]--;
+			if (q.isEmpty() && cnt > 0)
+				signalNext();
+			q.add(data);
 		} finally {
 			lock.unlock();
 		}
-
-		list[ind] = data;
-
-		lock.lock();
-		try {
-			items[ind]++;
-			full[ind].signal();
-		} finally {
-			lock.unlock();
-		}
-
 	}
 
 	@Override
 	public T get() {
-		int ind;
+		T data;
 
 		lock.lock();
 		try {
-			ind = head++;
-			head %= size;
-
-			if (items[ind] == 0) {
-				full[ind].awaitUninterruptibly();
+			long myT = ticket++;
+			if (myT != next || q.isEmpty()) {
+				cnt++;
+				int ind = wi++;
+				wi %= size;
+				c[ind].awaitUninterruptibly();
 			}
-
-			items[ind]--;
-		} finally {
-			lock.unlock();
-		}
-
-		T data = list[ind];
-
-		lock.lock();
-		try {
-			slots[ind]++;
-			empty[ind].signal();
+			next++;
+			data = q.poll();
+			if (!q.isEmpty() && cnt > 0)
+				signalNext();
 		} finally {
 			lock.unlock();
 		}
@@ -73,14 +58,19 @@ public class BufferLockFIFO<T> implements Buffer<T> {
 		return data;
 	}
 
-	private int size = 50000;
+	private void signalNext() {
+		cnt--;
+		c[ri++].signal();
+		ri %= size;
+	}
+
+	private Queue<T> q = new LinkedList<>();
+	private Condition[] c;
+
 	private Lock lock = new ReentrantLock();
-	private Condition full[] = new Condition[size];
-	private Condition empty[] = new Condition[size];
 
-	private T[] list = (T[]) new Object[size];
-	private int head = 0, tail = 0;
-	private int[] slots = new int[size];
-	private int[] items = new int[size];
-
+	private int ri = 0, wi = 0;
+	private int cnt = 0;
+	private int size;
+	long ticket = 0, next = 0;
 }

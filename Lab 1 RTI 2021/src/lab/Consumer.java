@@ -4,14 +4,18 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.Queue;
+import java.util.TreeMap;
 
 public class Consumer extends Thread {
 
-	public Consumer(int id, AtomicInteger moviesProccessed, Buffer<String> bufMovie, AtomicBroadcastBuffer<String> bufRatings,
-			Barrier allDataRead, Barrier allRatingsRead, Buffer<Movie> bestMovies) {
+	public Consumer(int id, AtomicLong moviesRead, AtomicLong moviesProccessed, Buffer<String> bufMovie,
+			AtomicBroadcastBuffer<String> bufRatings, Barrier allDataRead, Barrier allRatingsRead,
+			Buffer<Movie> bestMovies) {
 		this.id = id;
 		this.moviesProccessed = moviesProccessed;
+		this.moviesRead = moviesRead;
 		this.bufMovie = bufMovie;
 		this.bufRatings = bufRatings;
 		this.allDataRead = allDataRead;
@@ -28,7 +32,8 @@ public class Consumer extends Thread {
 				break;
 			}
 			String[] s = line.split("\t");
-			if (s[1].equals("movie") && !s[5].equals("\\N") && !s[8].contains("\\N")) {
+			moviesRead.getAndIncrement();
+			if (s[1].equals("movie") && !s[5].equals("\\N") && !s[8].equals("\\N")) {
 				Movie m = new Movie(s);
 				movies.put(m.getId(), m);
 			}
@@ -36,23 +41,29 @@ public class Consumer extends Thread {
 
 		allDataRead.arrive();
 
+//		int cnt = 0;
 		while (true) {
 			String line = bufRatings.get(id);
 			if (line == null) {
 				break;
 			}
 			String[] ratings = line.split("\t");
-			if (!movies.containsKey(ratings[0]))
+//			cnt++;
+			if (!movies.containsKey(ratings[0])) {
 				continue;
-			moviesProccessed.getAndIncrement();
+			}
+			moviesProccessed.incrementAndGet();
 			Movie m = movies.get(ratings[0]);
 			m.setRating(Double.parseDouble(ratings[1]));
 			m.setNumVotes(Integer.parseInt(ratings[2]));
-			
+
 			// At least 1000 votes
 			if (m.getNumVotes() >= 1000)
 				updateLocalMax(m);
+			
+			movies.remove(m.getId());
 		}
+//		System.out.println(cnt);
 
 		for (Entry<Integer, Map<String, Movie>> s1 : localMax.entrySet()) {
 			Map<String, Movie> t = s1.getValue();
@@ -88,11 +99,13 @@ public class Consumer extends Thread {
 	}
 
 	private int id;
-	private AtomicInteger moviesProccessed;
+	private AtomicLong moviesRead;
+	private AtomicLong moviesProccessed;
 	private Buffer<String> bufMovie;
 	private AtomicBroadcastBuffer<String> bufRatings;
 	private Barrier allDataRead, allRatingsRead;
 	private Buffer<Movie> bestMovies;
+
 	private Map<Integer, Map<String, Movie>> localMax = new HashMap<>();
 	private Map<String, Movie> movies = new HashMap<>();
 }

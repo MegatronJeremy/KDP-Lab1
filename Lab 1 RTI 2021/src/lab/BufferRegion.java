@@ -9,7 +9,7 @@ public class BufferRegion<T> implements Buffer<T> {
 	public void put(T data) {
 		synchronized(q) {
 			q.add(data);
-			q.notifyAll();
+			q.notify();
 		}
 	}
 

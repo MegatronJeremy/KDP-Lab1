@@ -4,10 +4,10 @@ import java.util.concurrent.Semaphore;
 
 public class BufferSemFIFO<T> implements Buffer<T> {
 	/**
-	 * najbolja varijanta
-	 * dobijanje mutexa nije fifo pa ako se zeli to postignuti 
-	 * moze se staviti fer vrednost semafora na true (verovatno nije bitno - samo da prvi koji dobije pravo pristupa
-	 * i prvi dobije podatak)
+	 * Najbolja varijanta - dosta konkurentno.
+	 * Dobijanje mutexa nije fifo pa ako se zeli to postignuti moze se staviti 
+	 * fer vrednost semafora na true (verovatno nije bitno - samo da prvi koji dobije pravo pristupa
+	 * i prvi dobije podatak).
 	 */
 
 	public BufferSemFIFO() {
@@ -56,6 +56,7 @@ public class BufferSemFIFO<T> implements Buffer<T> {
 	private Semaphore full[] = new Semaphore[size];
 	private Semaphore empty[] = new Semaphore[size];
 
+	@SuppressWarnings("unchecked")
 	private T[] list = (T[]) new Object[size];
 	private int head = 0, tail = 0;
 }

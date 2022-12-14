@@ -3,6 +3,12 @@ package lab;
 import java.util.LinkedList;
 import java.util.Queue;
 
+/**
+ * Ne bi bilo lose izdvojiti citanje i upis van regiona - procita indeks i niza
+ * uzme svoj podatak - veca konkurentnost nego Queue<T> (ali potrebne dodatne
+ * promenljive).
+ */
+
 public class BufferRegion<T> implements Buffer<T> {
 	@Override
 	public void put(T data) {
