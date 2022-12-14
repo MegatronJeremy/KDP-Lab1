@@ -5,9 +5,9 @@ import java.util.concurrent.Semaphore;
 public class BufferSemFIFO<T> implements Buffer<T> {
 	/**
 	 * najbolja varijanta
-	 * dobijanje mutexa nije fifo pa ako se zeli to postaviti
-	 * moze se staviti na true (verovatno nije bitno - samo da prvi koji dobije pravo pristupa
-	 * i prvi zapravo izadje)
+	 * dobijanje mutexa nije fifo pa ako se zeli to postignuti 
+	 * moze se staviti na fer vrednost semafora na true true (verovatno nije bitno - samo da prvi koji dobije pravo pristupa
+	 * i prvi dobije podatak)
 	 */
 
 	public BufferSemFIFO() {
