@@ -18,10 +18,10 @@ public class Test {
 		Buffer<String> fileInfo = new BufferSemFifoCLH<>();
 		AtomicBoolean firstDone = new AtomicBoolean(false);
 		Buffer<Entry<Integer, Integer>> seriesPerDecade = new BufferLock<>();
-		DoubleDoorBarrier consumersDone = new DoubleDoorBarrierSem(consumersNum);
+		Barrier consumersDone = new BarrierSem(consumersNum);
 		Map<Integer, Integer> moviesRead = new ConcurrentHashMap<>();
 		Map<Integer, Integer> finalDecadeNum = new TreeMap<>();
-		Barrier combinerDone = new BarrierMonitor(1);
+		Barrier combinerDone = new BarrierSem(1);
 
 		new Producer(fileName, fileInfo).start();
 

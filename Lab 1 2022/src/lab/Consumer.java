@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class Consumer extends Thread {
 
 	public Consumer(int id, int k, AtomicBoolean firstDone, Buffer<String> fileInfo,
-			Buffer<Entry<Integer, Integer>> seriesPerDecade, DoubleDoorBarrier consumersDone, Map<Integer, Integer> moviesRead) {
+			Buffer<Entry<Integer, Integer>> seriesPerDecade, Barrier consumersDone, Map<Integer, Integer> moviesRead) {
 		this.id = id;
 		K = k;
 		this.firstDone = firstDone;
@@ -38,8 +38,9 @@ public class Consumer extends Thread {
 		moviesRead.put(id, movieCnt);
 		sendData();
 
-		consumersDone.pass();
-
+		consumersDone.arrive();
+		consumersDone.await();
+		
 		if (firstDone.getAndSet(true) == false) {
 			seriesPerDecade.put(null);
 		}
@@ -67,7 +68,7 @@ public class Consumer extends Thread {
 	private AtomicBoolean firstDone;
 	private Buffer<String> fileInfo;
 	private Buffer<Entry<Integer, Integer>> seriesPerDecade;
-	private DoubleDoorBarrier consumersDone;
+	private Barrier consumersDone;
 	private Map<Integer, Integer> moviesRead;
 
 	private int movieCnt = 0;
