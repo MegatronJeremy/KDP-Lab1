@@ -7,8 +7,8 @@ import java.util.concurrent.locks.ReentrantLock;
 public class BufferLockOpt<T> implements Buffer<T> {
 
 	/**
-	 * I nije bas FIFO - ceka da dobije lock -> potencijalno postaviti lock promenljivu
-	 * tako da bude fer (usporenje x10 puta)
+	 * I nije bas FIFO - ceka da dobije lock -> potencijalno postaviti lock
+	 * promenljivu tako da bude fer (usporenje x10 puta)
 	 */
 
 	public BufferLockOpt() {

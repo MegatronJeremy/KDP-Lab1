@@ -8,23 +8,22 @@ public class BufferSem<T> implements Buffer<T> {
 
 	@Override
 	public void put(T data) {
-		mutexTail.acquireUninterruptibly();
+		mutex.acquireUninterruptibly();
 		q.add(data);
 		items.release();
-		mutexTail.release();
+		mutex.release();
 	}
 
 	@Override
 	public T get() {
 		items.acquireUninterruptibly();
-		mutexHead.acquireUninterruptibly();
+		mutex.acquireUninterruptibly();
 		T data = q.poll();
-		mutexHead.release();
+		mutex.release();
 		return data;
 	}
 
-	private Semaphore mutexHead = new Semaphore(1);
-	private Semaphore mutexTail = new Semaphore(1);
+	private Semaphore mutex = new Semaphore(1);
 	private Semaphore items = new Semaphore(0);
 	private Queue<T> q = new LinkedList<>();
 

@@ -15,7 +15,7 @@ public class Test {
 		long startTime = System.currentTimeMillis();
 
 		String fileName = "300000_data.tsv";
-		Buffer<String> fileInfo = new BufferSemFifoCLH<>();
+		Buffer<String> fileInfo = new BufferLockFifoCLH<>();
 		AtomicBoolean firstDone = new AtomicBoolean(false);
 		Buffer<Entry<Integer, Integer>> seriesPerDecade = new BufferLock<>();
 		Barrier consumersDone = new BarrierMonitor(consumersNum);

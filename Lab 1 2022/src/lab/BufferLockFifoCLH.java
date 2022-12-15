@@ -6,12 +6,8 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class BufferLockFIFOClh<T> implements Buffer<T> {
+public class BufferLockFifoCLH<T> implements Buffer<T> {
 
-	/**
-	 * Dobre performanse
-	 */
-	
 	@Override
 	public void put(T data) {
 		lock.lock();
