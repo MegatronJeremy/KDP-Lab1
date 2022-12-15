@@ -18,7 +18,7 @@ public class Test {
 		Buffer<String> fileInfo = new BufferSemFifoCLH<>();
 		AtomicBoolean firstDone = new AtomicBoolean(false);
 		Buffer<Entry<Integer, Integer>> seriesPerDecade = new BufferLock<>();
-		Barrier consumersDone = new BarrierMonitor(consumersNum);
+		DoubleDoorBarrier consumersDone = new DoubleDoorBarrierSem(consumersNum);
 		Map<Integer, Integer> moviesRead = new ConcurrentHashMap<>();
 		Map<Integer, Integer> finalDecadeNum = new TreeMap<>();
 		Barrier combinerDone = new BarrierMonitor(1);
