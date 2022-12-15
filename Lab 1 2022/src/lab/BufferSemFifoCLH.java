@@ -7,47 +7,56 @@ import java.util.concurrent.Semaphore;
 public class BufferSemFifoCLH<T> implements Buffer<T> {
 
 	/**
-	 * Komparativno - i cak malo brze od Andersenovog algoritma.
+	 * Veoma brzo ako se ponasa kao signal and continue monitor NAJBRZE RESENJE ZA
+	 * SEMAFOR
 	 */
-	
+
 	@Override
 	public void put(T data) {
 		mutex.acquireUninterruptibly();
 
 		q.add(data);
 
-		if (!waitingQ.isEmpty()) {
+		if (q.size() == 1 && !waitingQ.isEmpty()) {
 			waitingQ.poll().release();
-		} else {
-			mutex.release();
 		}
+
+		mutex.release();
 	}
 
 	@Override
 	public T get() {
 		mutex.acquireUninterruptibly();
 
-		if (q.isEmpty() || !waitingQ.isEmpty()) {
+		if (cntW > 0 || q.isEmpty()) {
+			cntW++;
 			Semaphore s = new Semaphore(0);
 			waitingQ.add(s);
 
 			mutex.release();
 			s.acquireUninterruptibly();
+
+			mutex.acquireUninterruptibly();
+
+			cntW--;
 		}
 
 		T data = q.remove();
 
 		if (!q.isEmpty() && !waitingQ.isEmpty()) {
 			waitingQ.poll().release();
-		} else {
-			mutex.release();
 		}
+
+		mutex.release();
 
 		return data;
 	}
 
 	private Semaphore mutex = new Semaphore(1);
 
+	private int cntW = 0;
+
 	private Queue<T> q = new LinkedList<>();
+
 	private Queue<Semaphore> waitingQ = new LinkedList<>();
 }

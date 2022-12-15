@@ -26,12 +26,14 @@ public class BufferMonitorFIFO<T> implements Buffer<T> {
 		}
 		next++;
 
+		T data = q.poll();
+
 		if (ticket != next && !q.isEmpty())
 			notifyAll();
 		else if (ticket == next)
 			ticket = next = 0;
 
-		return q.poll();
+		return data;
 	}
 
 	private long ticket = 0, next = 0;

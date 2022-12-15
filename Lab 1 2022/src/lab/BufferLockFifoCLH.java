@@ -7,6 +7,10 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class BufferLockFifoCLH<T> implements Buffer<T> {
+	
+	/**
+	 * Najbrze resenje za Lock
+	 */
 
 	@Override
 	public void put(T data) {

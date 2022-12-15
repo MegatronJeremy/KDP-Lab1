@@ -31,12 +31,13 @@ public class BufferRegionFIFO<T> implements Buffer<T> {
 				}
 			}
 			next++;
+
+			data = q.poll();
+
 			if (ticket != next && !q.isEmpty())
 				q.notifyAll();
 			else if (ticket == next)
 				ticket = next = 0;
-
-			data = q.poll();
 		}
 
 		return data;
