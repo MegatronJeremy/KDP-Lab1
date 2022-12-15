@@ -8,6 +8,7 @@ public class BufferSemFIFO<T> implements Buffer<T> {
 	 * Dobijanje mutexa nije fifo pa ako se zeli to postignuti moze se staviti 
 	 * fer vrednost semafora na true (verovatno nije bitno - samo da prvi koji dobije pravo pristupa
 	 * i prvi dobije podatak).
+	 * Nije ni ovo u potpunosti FIFO - ako ima vise consumera nego sto iznosi velicina bafera.
 	 */
 
 	public BufferSemFIFO() {

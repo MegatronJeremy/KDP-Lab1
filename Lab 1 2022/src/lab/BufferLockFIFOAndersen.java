@@ -6,7 +6,7 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class BufferLockFIFO<T> implements Buffer<T> {
+public class BufferLockFIFOAndersen<T> implements Buffer<T> {
 	
 	/**
 	 *	Efikasnije mnogo od cistog ticket algoritma - ali slozenije. 
@@ -14,7 +14,7 @@ public class BufferLockFIFO<T> implements Buffer<T> {
 	 *	@param - broj niti consumera
 	 */
 
-	public BufferLockFIFO(int size) {
+	public BufferLockFIFOAndersen(int size) {
 		this.size = size;
 		c = new Condition[size];
 		for (int i = 0; i < size; i++) {
@@ -40,14 +40,14 @@ public class BufferLockFIFO<T> implements Buffer<T> {
 
 		lock.lock();
 		try {
-			long myT = ticket++;
-			if (myT != next || q.isEmpty()) {
+			if (cntW > 0 || q.isEmpty()) {
 				cnt++;
+				cntW++;
 				int ind = wi++;
 				wi %= size;
 				c[ind].awaitUninterruptibly();
+				cntW--;
 			}
-			next++;
 			data = q.poll();
 			if (!q.isEmpty() && cnt > 0)
 				signalNext();
@@ -71,6 +71,6 @@ public class BufferLockFIFO<T> implements Buffer<T> {
 
 	private int ri = 0, wi = 0;
 	private int cnt = 0;
+	private int cntW = 0;
 	private int size;
-	long ticket = 0, next = 0;
 }
