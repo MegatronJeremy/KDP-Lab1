@@ -12,8 +12,8 @@ public class BufferSemFIFO<T> implements Buffer<T> {
 
 	public BufferSemFIFO() {
 		for (int i = 0; i < size; i++) {
-			full[i] = new Semaphore(0);
-			empty[i] = new Semaphore(1);
+			full[i] = new Semaphore(0, true);
+			empty[i] = new Semaphore(1, true);
 		}
 	}
 
@@ -51,7 +51,7 @@ public class BufferSemFIFO<T> implements Buffer<T> {
 		return data;
 	}
 
-	private int size = 50000;
+	private int size = 5000;
 	private Semaphore mutexTail = new Semaphore(1), mutexHead = new Semaphore(1);
 	private Semaphore full[] = new Semaphore[size];
 	private Semaphore empty[] = new Semaphore[size];
